@@ -187,8 +187,6 @@ export const sendFeedback = async (req, res) => {
 export const checkAttempt = async (req, res) => {
   try {
     const { test, email } = req.body;
-    console.log(test);
-    
     
     // Check if a result already exists for this user and test
     const attempt = await TestResult.findOne({ email, test: Number(test) });
@@ -228,5 +226,51 @@ export const submitTest = async (req, res) => {
   } catch (err) {
     console.error("Submission Error:", err);
     res.status(500).json({ success: false, message: "Failed to save results" });
+  }
+};
+
+
+
+export const getLeaderboard = async (req, res) => {
+  try {
+    // We use MongoDB Aggregation to group scores by user email
+    const leaderboard = await TestResult.aggregate([
+      {
+        $group: {
+          _id: "$email", // Group unique users by email
+          name: { $first: "$name" }, // Take the first 'name' found for this email
+          totalScore: { $sum: "$score" }, // Add up all scores
+          tests: { $sum: 1 }, // Count the number of documents (tests)
+          avgScore: { $avg: "$score" } // Calculate the average
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          name: 1,
+          totalScore: 1,
+          tests: 1,
+          // Round the average to 1 decimal place to keep the UI clean
+          avgScore: { $round: ["$avgScore", 1] } 
+        }
+      },
+      {
+        $sort: { totalScore: -1 } // Highest total score at the top
+      },
+      {
+        $limit: 50 // Only return top 50 players
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: leaderboard
+    });
+  } catch (err) {
+    console.error("Leaderboard Aggregation Error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to generate leaderboard" 
+    });
   }
 };
