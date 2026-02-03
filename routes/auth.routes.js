@@ -22,7 +22,7 @@ router.post("/login", apiKey, login);
 router.post("/forgot-password", apiKey, forgotPassword);
 router.post("/reset-password", apiKey, resetPassword);
 
-router.post("/tests/questions", getTestList);
+router.get("/tests", getTestList);
 
 
 
