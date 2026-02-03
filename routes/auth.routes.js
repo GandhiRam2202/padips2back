@@ -12,6 +12,7 @@ import {
   
   sendFeedback,
   getTestList,
+  getQuestionsByTest,
   
 } from "../controllers/auth.controller.js";
 
@@ -23,6 +24,9 @@ router.post("/forgot-password", apiKey, forgotPassword);
 router.post("/reset-password", apiKey, resetPassword);
 
 router.get("/tests", getTestList);
+
+// 2. Used by LearnQuestionsScreen: sending { test: item }
+router.post("/tests/questions", apiKey, getQuestionsByTest);
 
 
 

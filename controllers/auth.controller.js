@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { sendOtp } from "../utils/sendOtp.js";
 import emailjs from "@emailjs/nodejs";
-import test from "../models/Testmodel.js"
+import testmodel from "../models/Testmodel.js"
 
 
 /* ================= REGISTER ================= */
@@ -113,35 +113,7 @@ export const resetPassword = async (req, res) => {
 
 
 
-/* ================= FEEDBACK EMAIL (EMAILJS) ================= */
 
-export const sendFeedbackEmail = async (req, res) => {
-  const { name, email, feedback } = req.body;
-  
-  if (!name || !email || !feedback) {
-    return res.status(400).json({ success: false, msg: "Missing fields" });
-  }
-  
-  try {
-    const response = await emailjs.send(
-      process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID_2,
-      {
-        from_name: name,
-        from_email: email,
-        message: feedback,
-      },
-      {
-        publicKey: process.env.EMAILJS_PUBLIC_KEY,
-        privateKey: process.env.EMAILJS_PRIVATE_KEY,
-      }
-    );
-    
-    return res.status(200).json({ success: true, msg: "Feedback email sent successfully", response });
-  } catch (error) {
-    return res.status(500).json({ success: false, msg: "Email sending failed", error: error?.text || error });
-  }
-};
 
 
 
@@ -150,7 +122,7 @@ export const sendFeedbackEmail = async (req, res) => {
 export const getTestList = async (req, res) => {
   try {
     // This finds every unique "test" number in your database (e.g., [1, 2, 5])
-    const tests = await test.distinct("test");
+    const tests = await testmodel.distinct("test");
 
     // Sort them so they appear as Test 1, Test 2, Test 3...
     const sortedTests = tests.sort((a, b) => a - b);
@@ -161,6 +133,26 @@ export const getTestList = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ success: false, message: "Failed to load tests" });
+  }
+};
+
+
+/* ======================================================
+   2. LEARN SCREEN: Fetch Questions for the Selected Test
+   ====================================================== */
+export const getQuestionsByTest = async (req, res) => {
+  try {
+    const { test } = req.body; // Sent from LearnQuestionsScreen
+
+    const questions = await testmodel.find({ test: Number(test) })
+      .sort({ questionNo: 1 });
+
+    res.status(200).json({
+      success: true,
+      data: questions
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error loading questions" });
   }
 };
 
