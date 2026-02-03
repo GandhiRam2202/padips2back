@@ -11,6 +11,7 @@ import {
   submitTest,
   checkAttempt,
   getLeaderboard,
+  getUserScores,
   
 } from "../controllers/auth.controller.js";
 
@@ -33,6 +34,8 @@ router.post("/tests/check-attempt", apiKey, checkAttempt);
 router.post("/tests/submit", apiKey, submitTest);
 
 router.get("/tests/leaderboard", getLeaderboard);
+
+router.post("/tests/profile", apiKey, getUserScores);
 
 router.post("/feedback", apiKey, sendFeedback);
 

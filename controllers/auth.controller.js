@@ -274,3 +274,34 @@ export const getLeaderboard = async (req, res) => {
     });
   }
 };
+
+
+
+export const getUserScores = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "User email is required" 
+      });
+    }
+
+    // Find all results for this user and sort by test number
+    const results = await TestResult.find({ email })
+      .sort({ test: 1 }) 
+      .select("test score completedAt"); // Only return necessary fields
+
+    res.status(200).json({
+      success: true,
+      data: results
+    });
+  } catch (err) {
+    console.error("Profile scores error:", err);
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error" 
+    });
+  }
+};
