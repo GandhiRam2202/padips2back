@@ -11,4 +11,4 @@ const testResultSchema = new mongoose.Schema({
 // Optional: Prevent duplicate submissions at database level
 testResultSchema.index({ email: 1, test: 1 }, { unique: true });
 
-export default mongoose.model('TestResult', testResultSchema);
+export default mongoose.model('testsubmits', testResultSchema);

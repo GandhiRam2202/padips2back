@@ -212,7 +212,7 @@ export const submitTest = async (req, res) => {
     const { test, score, email, name } = req.body;
 
     // Create a new record in the TestResults collection
-    const newResult = await testubmits.create({
+    const newResult = await TestResult.create({
       test: Number(test),
       score: Number(score),
       email,
