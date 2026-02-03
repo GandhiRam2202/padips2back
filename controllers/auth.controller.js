@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { sendOtp } from "../utils/sendOtp.js";
+import emailjs from "@emailjs/nodejs";
 
 
 /* ================= REGISTER ================= */
@@ -106,5 +107,37 @@ export const resetPassword = async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ message: "Password reset failed" });
+  }
+};
+
+
+
+/* ================= FEEDBACK EMAIL (EMAILJS) ================= */
+
+export const sendFeedbackEmail = async (req, res) => {
+  const { name, email, feedback } = req.body;
+  
+  if (!name || !email || !feedback) {
+    return res.status(400).json({ success: false, msg: "Missing fields" });
+  }
+  
+  try {
+    const response = await emailjs.send(
+      process.env.EMAILJS_SERVICE_ID,
+      process.env.EMAILJS_TEMPLATE_ID_2,
+      {
+        from_name: name,
+        from_email: email,
+        message: feedback,
+      },
+      {
+        publicKey: process.env.EMAILJS_PUBLIC_KEY,
+        privateKey: process.env.EMAILJS_PRIVATE_KEY,
+      }
+    );
+    
+    return res.status(200).json({ success: true, msg: "Feedback email sent successfully", response });
+  } catch (error) {
+    return res.status(500).json({ success: false, msg: "Email sending failed", error: error?.text || error });
   }
 };
