@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import { sendOtp } from "../utils/sendOtp.js";
 import emailjs from "@emailjs/nodejs";
 import testmodel from "../models/Testmodel.js"
-
+import TestResult from "../models/TestResult.js";
 
 /* ================= REGISTER ================= */
 export const register = async (req, res) => {
@@ -175,4 +175,54 @@ export const sendFeedback = async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) { res.status(500).json({ success: false }); }
+};
+
+
+
+/* ======================================================
+   1. CHECK ATTEMPT: prevent retakes if necessary
+   ====================================================== */
+export const checkAttempt = async (req, res) => {
+  try {
+    const { test, email } = req.body;
+    
+    // Check if a result already exists for this user and test
+    const attempt = await testsubmits.findOne({ email, test: Number(test) });
+
+    res.status(200).json({
+      success: true,
+      attempted: !!attempt // returns true if attempt exists
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error checking attempt" });
+  }
+};
+
+
+
+/* ======================================================
+   2. SUBMIT TEST: Save user score
+   ====================================================== */
+export const submitTest = async (req, res) => {
+  try {
+    const { test, score, email, name } = req.body;
+
+    // Create a new record in the TestResults collection
+    const newResult = await testubmits.create({
+      test: Number(test),
+      score: Number(score),
+      email,
+      name,
+      completedAt: new Date()
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Test results saved successfully",
+      data: newResult
+    });
+  } catch (err) {
+    console.error("Submission Error:", err);
+    res.status(500).json({ success: false, message: "Failed to save results" });
+  }
 };
