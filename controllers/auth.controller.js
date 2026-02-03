@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { sendOtp } from "../utils/sendOtp.js";
 import emailjs from "@emailjs/nodejs";
+import test from "../models/Testmodel.js"
 
 
 /* ================= REGISTER ================= */
@@ -144,61 +145,34 @@ export const sendFeedbackEmail = async (req, res) => {
 
 
 
-// --- HOME SCREEN: Fetch Test Numbers ---
-export const getTests = async (req, res) => {
+
+
+export const getTestList = async (req, res) => {
   try {
-    // Returns unique test numbers found in the Questions collection
-    const tests = await Question.distinct("test");
-    res.json({ success: true, data: tests });
-  } catch (err) { res.status(500).json({ success: false }); }
+    // This finds every unique "test" number in your database (e.g., [1, 2, 5])
+    const tests = await test.distinct("test");
+
+    // Sort them so they appear as Test 1, Test 2, Test 3...
+    const sortedTests = tests.sort((a, b) => a - b);
+
+    res.status(200).json({
+      success: true,
+      data: sortedTests // Your FlatList expects an array like [1, 2, 3]
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to load tests" });
+  }
 };
 
 
 
 
-// --- LEARN QUESTIONS SCREEN ---
-export const getQuestionsByTest = async (req, res) => {
-  try {
-    const { test } = req.body;
-    const questions = await Question.find({ test }).sort({ questionNo: 1 });
-    res.json({ success: true, data: questions });
-  } catch (err) { res.status(500).json({ success: false }); }
-};
 
-// --- LEADERBOARD SCREEN ---
-export const getLeaderboard = async (req, res) => {
-  try {
-    // Aggregates user scores, counting tests and calculating averages
-    const leaderboard = await TestResult.aggregate([
-      {
-        $group: {
-          _id: "$email",
-          name: { $first: "$name" },
-          totalScore: { $sum: "$score" },
-          tests: { $sum: 1 },
-          avgScore: { $avg: "$score" }
-        }
-      },
-      { $sort: { totalScore: -1 } },
-      { $limit: 20 }
-    ]);
-    res.json({ success: true, data: leaderboard });
-  } catch (err) { res.status(500).json({ success: false }); }
-};
-
-// --- PROFILE SCREEN: Load Scores ---
-export const getProfileScores = async (req, res) => {
-  try {
-    const { email } = req.body;
-    const results = await TestResult.find({ email }).sort({ createdAt: -1 });
-    res.json({ success: true, data: results });
-  } catch (err) { res.status(500).json({ success: false }); }
-};
 
 // --- FEEDBACK SCREEN ---
 export const sendFeedback = async (req, res) => {
   const { name, email, feedback } = req.body;
-  console.log(feedback);
+
   
   try {
     await emailjs.send(
@@ -209,15 +183,4 @@ export const sendFeedback = async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) { res.status(500).json({ success: false }); }
-};
-
-// --- ADMIN: Force Logout (For Socket.io) ---
-export const restrictUser = async (req, res) => {
-  const { userId, type, reason } = req.body; // type: 'blocked' or 'suspended'
-  const io = req.app.get('socketio');
-  
-  // Emit to the user's specific room
-  io.to(userId).emit("forceLogout", { type, reason });
-  
-  res.json({ success: true, message: "User notified and logged out" });
 };
