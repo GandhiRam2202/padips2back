@@ -198,11 +198,13 @@ export const getProfileScores = async (req, res) => {
 // --- FEEDBACK SCREEN ---
 export const sendFeedback = async (req, res) => {
   const { name, email, feedback } = req.body;
+  console.log(feedback);
+  
   try {
     await emailjs.send(
       process.env.EMAILJS_SERVICE_ID,
       process.env.EMAILJS_FEEDBACK_TEMPLATE_ID,
-      { from_name: name, from_email: email, message: feedback },
+      { from_name: name, from_email: email, feedback: feedback },
       { publicKey: process.env.EMAILJS_PUBLIC_KEY, privateKey: process.env.EMAILJS_PRIVATE_KEY }
     );
     res.json({ success: true });
