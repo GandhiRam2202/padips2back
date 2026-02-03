@@ -201,7 +201,7 @@ export const sendFeedback = async (req, res) => {
   try {
     await emailjs.send(
       process.env.EMAILJS_SERVICE_ID,
-      process.env.EMAILJS_TEMPLATE_ID,
+      process.env.EMAILJS_TEMPLATE_ID_2,
       { from_name: name, from_email: email, message: feedback },
       { publicKey: process.env.EMAILJS_PUBLIC_KEY, privateKey: process.env.EMAILJS_PRIVATE_KEY }
     );
