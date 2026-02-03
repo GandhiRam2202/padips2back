@@ -5,11 +5,6 @@ import {
   login,
   forgotPassword,
   resetPassword,
-  
-  
-  
-  
-  
   sendFeedback,
   getTestList,
   getQuestionsByTest,
@@ -31,10 +26,10 @@ router.get("/tests", getTestList);
 router.post("/tests/questions", apiKey, getQuestionsByTest);
 
 
-router.post("tests/check-attempt", apiKey, checkAttempt);
+router.post("/tests/check-attempt", apiKey, checkAttempt);
 
 // Matches: api.post("/tests/submit")
-router.post("tests/submit", apiKey, submitTest);
+router.post("/tests/submit", apiKey, submitTest);
 
 router.post("/feedback", apiKey, sendFeedback);
 

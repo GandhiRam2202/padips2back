@@ -6,6 +6,8 @@ import emailjs from "@emailjs/nodejs";
 import testmodel from "../models/Testmodel.js"
 import TestResult from "../models/TestResult.js";
 
+
+
 /* ================= REGISTER ================= */
 export const register = async (req, res) => {
   try {
@@ -185,9 +187,11 @@ export const sendFeedback = async (req, res) => {
 export const checkAttempt = async (req, res) => {
   try {
     const { test, email } = req.body;
+    console.log(test);
+    
     
     // Check if a result already exists for this user and test
-    const attempt = await testsubmits.findOne({ email, test: Number(test) });
+    const attempt = await TestResult.findOne({ email, test: Number(test) });
 
     res.status(200).json({
       success: true,
