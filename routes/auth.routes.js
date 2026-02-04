@@ -22,18 +22,16 @@ router.post("/login", apiKey, login);
 router.post("/forgot-password", apiKey, forgotPassword);
 router.post("/reset-password", apiKey, resetPassword);
 
-router.get("/tests", getTestList);
+router.get("/tests", apiKey, getTestList);
 
 // 2. Used by LearnQuestionsScreen: sending { test: item }
 router.post("/tests/questions", apiKey, getQuestionsByTest);
-
-
+// Matches: api.post("/tests/check-attempt")
 router.post("/tests/check-attempt", apiKey, checkAttempt);
-
 // Matches: api.post("/tests/submit")
 router.post("/tests/submit", apiKey, submitTest);
 
-router.get("/tests/leaderboard", getLeaderboard);
+router.get("/tests/leaderboard", apiKey, getLeaderboard);
 
 router.post("/tests/profile", apiKey, getUserScores);
 
